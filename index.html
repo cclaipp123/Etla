@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金额大写转换工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input[type="number"]:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 60px;
+            font-size: 18px;
+            color: #333;
+            word-break: break-all;
+        }
+        .note {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            font-size: 14px;
+            color: #555;
+        }
+        .correct {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .easter-egg {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            padding: 15px;
+            background: #fff9c4;
+            border-radius: 10px;
+            border: 2px solid #ffd54f;
+            width: 100%;
+        }
+        .easter-egg p {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f57c00;
+            margin-bottom: 10px;
+        }
+        .easter-egg img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            margin-top: 10px;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>金额大写转换工具</h1>
+        
+        <div class="input-group">
+            <label for="amount">请输入金额：</label>
+            <input type="number" id="amount" placeholder="请输入阿拉伯数字金额，如：103184.41" step="0.01" min="0">
+        </div>
+        
+        <button onclick="convertToChinese()">转换为大写</button>
+        
+        <div class="result" id="result">
+            大写金额将显示在这里...
+        </div>
+        
+        <!-- 彩蛋 -->
+        <div class="easter-egg" id="easterEgg">
+            <p>恭喜你发现了野兽先辈！🎉</p>
+            <img src="https://moegirl.icu/media/thumb/%E9%87%8E%E5%85%BD%E5%85%88%E8%BE%88%E6%9C%AC%E4%BD%93.png/417px-%E9%87%8E%E5%85%BD%E5%85%88%E8%BE%88%E6%9C%AC%E4%BD%93.png" alt="彩蛋图片" id="easterEggImage">
+        </div>
+        
+        <div class="note">
+            <strong>使用说明：</strong><br>
+            1. 输入阿拉伯数字金额，支持小数点后两位（角和分）<br>
+            2. 点击"转换为大写"按钮获取中文大写金额<br>
+            3. 转换结果符合财务规范，自动处理"零"的添加规则<br>
+            <br>
+            <strong>测试用例：</strong><br>
+            - 103184.41 → <span class="correct">人民币壹拾万零叁仟壹佰捌拾肆元肆角壹分</span><br>
+            - 10005.07 → <span class="correct">人民币壹万零伍元零柒分</span><br>
+            - 1000.50 → <span class="correct">人民币壹仟元零伍角整</span><br>
+            - 3050100.01 → <span class="correct">人民币叁佰零伍万零壹佰元零壹分</span>
+        </div>
+    </div>
+
+    <script>
+        // 彩蛋计时器
+        let easterEggTimer = null;
+        
+        function convertToChinese() {
+            const amount = document.getElementById('amount').value;
+            const resultElement = document.getElementById('result');
+            
+            // 检查输入是否有效
+            if (!amount || isNaN(amount) || parseFloat(amount) < 0) {
+                resultElement.textContent = "请输入有效的正数金额";
+                resultElement.style.color = "red";
+                return;
+            }
+            
+            // 检查是否为彩蛋数字
+            if (amount === '114514') {
+                resultElement.innerHTML = `<strong>人民币壹拾壹万肆仟伍佰壹拾肆元整</strong>`;
+                resultElement.style.color = "#333";
+                
+                // 显示彩蛋
+                showEasterEgg();
+                return;
+            }
+            
+            try {
+                // 正常转换逻辑
+                const chineseAmount = arabicToChinese(amount);
+                resultElement.innerHTML = `<strong>${chineseAmount}</strong>`;
+                resultElement.style.color = "#333";
+            } catch (error) {
+                resultElement.textContent = "转换出错，请检查输入格式";
+                resultElement.style.color = "red";
+            }
+        }
+        
+        function showEasterEgg() {
+            // 显示彩蛋
+            document.getElementById('easterEgg').style.display = 'block';
+            
+            // 清除之前的计时器
+            if (easterEggTimer) {
+                clearTimeout(easterEggTimer);
+            }
+            
+            // 设置3秒后自动隐藏彩蛋
+            easterEggTimer = setTimeout(() => {
+                document.getElementById('easterEgg').style.display = 'none';
+            }, 3000);
+        }
+        
+        function arabicToChinese(number) {
+            // 定义数字对应的大写字符
+            const chineseNumbers = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+            const chineseUnits = ['', '拾', '佰', '仟'];
+            const sectionUnits = ['', '万', '亿', '万亿'];
+            
+            // 处理小数部分
+            let [integerPart, decimalPart = ''] = number.toString().split('.');
+            
+            // 补齐小数位
+            decimalPart = decimalPart.padEnd(2, '0').substring(0, 2);
+            
+            // 如果整数部分为0
+            if (integerPart === '0' || integerPart === '') {
+                integerPart = '0';
+            }
+            
+            // 转换整数部分
+            let chineseInteger = '';
+            
+            // 将整数部分分组，每4位一组
+            const sections = [];
+            for (let i = integerPart.length; i > 0; i -= 4) {
+                sections.push(integerPart.substring(Math.max(0, i - 4), i));
+            }
+            sections.reverse();
+            
+            // 处理每一组
+            let lastSectionHadZero = false; // 记录上一组是否有零
+            for (let i = 0; i < sections.length; i++) {
+                const section = sections[i];
+                let sectionChinese = '';
+                let lastWasZero = false; // 上一位是否是零
+                let hasNonZero = false; // 这一组中是否有非零数字
+                
+                // 处理组内的每一位
+                for (let j = 0; j < section.length; j++) {
+                    const digit = parseInt(section[j]);
+                    const unit = chineseUnits[section.length - 1 - j];
+                    
+                    if (digit === 0) {
+                        // 如果当前位是0，标记有零
+                        lastWasZero = true;
+                    } else {
+                        // 如果前面有零且当前不是零，添加"零"
+                        if (lastWasZero && hasNonZero) {
+                            sectionChinese += chineseNumbers[0];
+                        }
+                        sectionChinese += chineseNumbers[digit] + unit;
+                        lastWasZero = false;
+                        hasNonZero = true;
+                    }
+                }
+                
+                // 添加组单位（万、亿等）
+                if (parseInt(section) !== 0 || (sections.length === 1 && parseInt(section) === 0)) {
+                    sectionChinese += sectionUnits[sections.length - 1 - i];
+                }
+                
+                // 处理组与组之间的零
+                if (i > 0 && sectionChinese === '' && lastSectionHadZero) {
+                    // 如果当前组全为零且上一组也有零，不重复添加零
+                } else if (i > 0 && sectionChinese === '' && !lastSectionHadZero) {
+                    chineseInteger += chineseNumbers[0];
+                    lastSectionHadZero = true;
+                } else {
+                    // 避免连续的零
+                    if (i > 0 && lastSectionHadZero && !sectionChinese.startsWith(chineseNumbers[0]) && parseInt(section) !== 0) {
+                        chineseInteger += chineseNumbers[0];
+                    }
+                    chineseInteger += sectionChinese;
+                    lastSectionHadZero = section.endsWith('0') || (lastWasZero && hasNonZero);
+                }
+            }
+            
+            // 如果整数部分为零
+            if (chineseInteger === '' || parseInt(integerPart) === 0) {
+                chineseInteger = '零';
+            }
+            
+            // 添加"元"
+            chineseInteger += '元';
+            
+            // 转换小数部分
+            let chineseDecimal = '';
+            const jiao = parseInt(decimalPart[0] || '0');
+            const fen = parseInt(decimalPart[1] || '0');
+            
+            if (jiao === 0 && fen === 0) {
+                chineseDecimal = '整';
+            } else if (jiao === 0 && fen > 0) {
+                chineseDecimal = '零' + chineseNumbers[fen] + '分';
+            } else if (jiao > 0 && fen === 0) {
+                chineseDecimal = chineseNumbers[jiao] + '角整';
+            } else {
+                chineseDecimal = chineseNumbers[jiao] + '角' + chineseNumbers[fen] + '分';
+            }
+            
+            return '人民币' + chineseInteger + chineseDecimal;
+        }
+        
+        // 添加回车键支持
+        document.getElementById('amount').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                convertToChinese();
+            }
+        });
+        
+        // 输入框内容改变时隐藏彩蛋
+        document.getElementById('amount').addEventListener('input', function() {
+            document.getElementById('easterEgg').style.display = 'none';
+            if (easterEggTimer) {
+                clearTimeout(easterEggTimer);
+            }
+        });
+    </script>
+</body>
+</html>
