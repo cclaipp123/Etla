@@ -126,7 +126,7 @@
         
         <!-- 彩蛋 -->
         <div class="easter-egg" id="easterEgg">
-            <p>恭喜你发现了野兽先辈！🎉</p>
+            <p id="easterEggMessage">恭喜你发现了野兽先辈！🎉</p>
             <img src="https://moegirl.icu/media/thumb/%E9%87%8E%E5%85%BD%E5%85%88%E8%BE%88%E6%9C%AC%E4%BD%93.png/417px-%E9%87%8E%E5%85%BD%E5%85%88%E8%BE%88%E6%9C%AC%E4%BD%93.png" alt="彩蛋图片" id="easterEggImage">
         </div>
         
@@ -165,7 +165,17 @@
                 resultElement.style.color = "#333";
                 
                 // 显示彩蛋
-                showEasterEgg();
+                showEasterEgg('恭喜你发现了野兽先辈！🎉', 'https://moegirl.icu/media/thumb/%E9%87%8E%E5%85%BD%E5%85%88%E8%BE%88%E6%9C%AC%E4%BD%93.png/417px-%E9%87%8E%E5%85%BD%E5%85%88%E8%BE%88%E6%9C%AC%E4%BD%93.png');
+                return;
+            }
+            
+            // 检查是否为第二个彩蛋数字
+            if (amount === '1919810') {
+                resultElement.innerHTML = `<strong>人民币壹佰玖拾壹万玖仟捌佰壹拾元整</strong>`;
+                resultElement.style.color = "#333";
+                
+                // 显示第二个彩蛋
+                showEasterEgg('要去了！要去了！🎉', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd6700ZnUqc2SM2vkPcKkGH9clJ-mBAq2-1rWbKmw5yDVPaXKXO1XJZKo&s');
                 return;
             }
             
@@ -180,7 +190,11 @@
             }
         }
         
-        function showEasterEgg() {
+        function showEasterEgg(message, imageUrl) {
+            // 设置彩蛋消息和图片
+            document.getElementById('easterEggMessage').textContent = message;
+            document.getElementById('easterEggImage').src = imageUrl;
+            
             // 显示彩蛋
             document.getElementById('easterEgg').style.display = 'block';
             
